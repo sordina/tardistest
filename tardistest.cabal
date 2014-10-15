@@ -1,0 +1,16 @@
+name:                tardistest
+version:             0.1.0.0
+synopsis:            tardistest Project...
+homepage:            http://github.com/sordina/tardistest
+license:             MIT
+license-file:        LICENSE
+author:              Lyndon Maydwell
+maintainer:          maydwell@gmail.com
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable tardistest
+  main-is:             Main.hs
+  build-depends:       base -any
+  hs-source-dirs:      src
+  default-language:    Haskell2010
