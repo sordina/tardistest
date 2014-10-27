@@ -53,15 +53,21 @@ at the same time.
 
 # State Example
 
-	state_example = do
-		sendFuture 123
-		x <- getPast
-		return (x + 1)
+	 state_example = do
+	 	sendFuture 123
+	 	x <- getPast
+	 	return (x + 1)
 	
-	runTardis state_example ((),5) -- => (124,((),123))
+	 runTardis state_example ((),5) -- => (124,((),123))
 
 # Reverse State Example
 
+	 state_example = do
+	 	x <- getFuture
+	 	sendPast 123
+	 	return (x + 1)
+	
+	 runTardis state_example (5,()) -- => (124,(123,()))
 
 
 # Other Links
