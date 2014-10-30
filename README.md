@@ -1,25 +1,25 @@
-# The Tardis Monad
+#
+
+## The Tardis Monad
 
 ![Tardis](http://hello.eboy.com/eboy/wp-content/uploads/2013/10/PT-Tardis-01t-6x.png)
+
+## What is it?
 
 Tardis (or TardisT) provides the capabilities of both the State, and the Reverse-State monads in one handy package.
 
 	 cabal install tardis
+
+## What's in the Box?
 	 
 With this package you have several monadic functions available.
 
-	 class (Control.Applicative.Applicative m, Control.Monad.Fix.MonadFix m) =>
-	       MonadTardis bw fw (m :: * -> *) | m -> bw, m -> fw where
+	 class ... MonadTardis bw fw m ... where
 	   getPast :: m fw
 	   getFuture :: m bw
 	   sendPast :: bw -> m ()
 	   sendFuture :: fw -> m ()
 	   tardis :: ((bw, fw) -> (a, (bw, fw))) -> m a
-
-	 type Tardis bw fw = TardisT bw fw Data.Functor.Identity.Identity
-	 type role TardisT nominal nominal representational nominal
-	 newtype TardisT bw fw (m :: * -> *) a
-	       = Control.Monad.Trans.Tardis.TardisT {runTardisT :: (bw, fw) -> m (a, (bw, fw))}
 
 	 evalTardis      :: Tardis bw fw a -> (bw, fw) -> a
 	 evalTardisT     :: Monad m => TardisT bw fw m a -> (bw, fw) -> m a
@@ -32,26 +32,33 @@ With this package you have several monadic functions available.
 	 noState         :: (a, b)
 	 runTardis       :: Tardis bw fw a -> (bw, fw) -> (a, (bw, fw))
 
+## What's important?
+
 The most important being...
 
 * getPast
 * getFuture
 * sendPast
 * sendFuture
+* runTardisT
 
-These allow you to work with the state monad
+#
+
+## Work with the state monad
 
 * getPast
 * sendFuture
 
-and the reverse-state monad
+#
+
+## And the reverse-state monad
 
 * getFuture
 * sendPast
 
-at the same time.
+# ... At the same time
 
-# State Example
+## State Example
 
 	 state_example = do
 	 	sendFuture 123
@@ -60,7 +67,7 @@ at the same time.
 	
 	 runTardis state_example ((),5) -- => (124,((),123))
 
-# Reverse State Example
+## Reverse State Example
 
 	 state_example = do
 	 	x <- getFuture
@@ -69,7 +76,21 @@ at the same time.
 	
 	 runTardis state_example (5,()) -- => (124,(123,()))
 
+## Tardis Example
 
-# Other Links
+	 tardis_example = do
+	 	x <- getFuture
+		sendFuture 234
+	 	sendPast   123
+		y <- getPast
+	 	return (x + y)
+	
+	 runTardis state_example (0,0) -- => (357,(123,234))
+
+
+## Other Links
 
 * [Temporally Quaquaversal Virtual Nanomachine Programming In Multiple Topologically Connected Quantum-Relativistic Parallel Timespaces...Made Easy!](http://blip.tv/oreilly-open-source-convention/oscon-2008-damian-conway-thoughtstream-temporally-quaquaversal-virtual-nanomachine-programming-in-multiple-t-1151669)
+* [Bowling on a Tardis](http://unknownparallel.wordpress.com/2012/11/05/bowling-on-a-tardis/)
+* [Tardis Hackage Docs](https://hackage.haskell.org/package/tardis-0.3.0.0/docs/Control-Monad-Trans-Tardis.html)
+* [Two implementations of seers](http://unknownparallel.wordpress.com/2013/05/07/two-implementations-of-seers/)

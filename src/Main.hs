@@ -1,9 +1,11 @@
+{-# LANGUAGE RecursiveDo #-}
+
 module Main where
 
   -- http://hackage.haskell.org/package/tardis-0.3.0.0/docs/Control-Monad-Tardis.html
 
+import Control.Monad
 import Control.Monad.Tardis
-import Data.Maybe
 
 main :: IO ()
 main = timeParadox
@@ -31,26 +33,26 @@ paradox = do
   matGrams  <- getPerson jane
   matGramps <- getPerson joe
 
-  inst <- getInstructions
-  -- respondToInstructions inst
-  ---- Ignore instruction and kill pete
-  killPete
+  -- killPete
+  respondToInstructions
 
   dad       <- breed patGrams patGramps
   mom       <- breed matGrams matGramps
-  maybeMe   <- breed dad mom
 
-  if isJust maybeMe then sendInstructionBackThroughTime (Kill pete)
-                    else return ()
+  when True $ sendInstructionBackThroughTime (Kill pete)
+
+  maybeMe   <- breed dad mom
+  living    <- amIAlive
 
   amIAlive
 
-respondToInstructions :: [Instruction] -> Paradoxically ()
-respondToInstructions ls = mapM_ respondToInstruction ls
+respondToInstructions :: Paradoxically ()
+respondToInstructions = getInstructions
+  >>= \x -> modifyForwards (case x of [] -> id
+                                      _  -> filter (/= pete))
 
 respondToInstruction :: Instruction -> Paradoxically ()
-respondToInstruction (Kill person) | person == pete = killPete
-respondToInstruction (Kill _     )                  = return ()
+respondToInstruction (Kill person) = when (person == pete) killPete
 
 breed :: Maybe Person -> Maybe Person -> Paradoxically (Maybe Person)
 breed (Just x) (Just y) = do
@@ -74,7 +76,7 @@ personIsBorn person = modifyForwards (person : )
 
 getPerson :: Person -> Paradoxically (Maybe Person)
 getPerson person = do
-  people <- getPast
+  ~people <- getPast
   if elem person people
      then return (Just person)
      else return Nothing
@@ -93,15 +95,5 @@ killPerson person = modifyForwards (filter (/= person))
 
 amIAlive :: Paradoxically Bool
 amIAlive = do
-  people <- getPast
+  ~people <- getPast
   return $ elem (namePair (namePair june pete) (namePair jane joe)) people
-
-{-
-  patGrams  <- getPerson june
-  patGramps <- getPerson pete
-  matGrams  <- getPerson jane
-  matGramps <- getPerson joe
-  dad       <- breed patGrams patGramps
-  mom       <- breed matGrams matGramps
-  maybeMe   <- breed dad mom
-  -}
